@@ -31,46 +31,69 @@
 
     <v-data-iterator :items="destinations" class="mt-10 mx-5">
 
-      <template v-slot:default="{ destinations }">
-
         <template v-for="destination in destinations" :key="destination.id">
-          <v-card variant="outlined" v-bind="destination">
-
-
-            <div class="d-flex justify-space-between">
-              <v-card-title>Title: {{ destination.country }} <span class="mt-3 font-weight-bold">
+      
+            <v-row class="d-flex justify-space-between my-5">
+              <v-col cols="md-4">
+                <v-card elevation="2" class="border">
+                  <v-img cover height="200px" :src="destination.country_image" alt="background" />
+                </v-card>
+                
+              </v-col>
+              <v-col>
+                <v-card-title class="text-h5">
+                {{ destination.country }} <span class="mt-3 font-weight-bold">
              </span></v-card-title>
-
-            </div>
-
-
-          </v-card>
-
+             <v-card-text class="text-subtitle-1">{{ destination.body }}</v-card-text>
+             <div class="d-flex justify-end ma-3">
+            <v-btn class="bg-primary mx-lg-2"><v-icon icon="mdi-file-edit"></v-icon></v-btn>
+            <v-btn class="bg-red mx-lg-2"><v-icon icon="mdi-delete-empty"></v-icon></v-btn>
+            <v-btn class="bg-grey mx-lg-2"><v-icon icon="mdi-cancel"></v-icon></v-btn>
+          </div>
+              </v-col>
+              
+            </v-row>
           <br>
+          <hr>
         </template>
-      </template>
+
     </v-data-iterator>
   </div>
+  <v-pagination v-model="currentPage" :length="totalPages" @input="handlePageChange"></v-pagination>
 </template>
 <script>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import axios from 'axios';
 
 export default {
   setup() {
     const destinations = ref([]);
-    const getDestinations = () => {
-      axios.get('http://tourism-app-backend.test/api/destinations')
+    const currentPage = ref(1);
+    const totalPages = ref();
+    const totalDestinations = ref();
+    const getDestinations = (currentPage) => {
+      axios.get(`http://tourism-app-backend.test/api/destinations?page=${currentPage}`)
         .then(response => {
           // Assuming you want to update the destinations array with the response data
-          destinations.value = response.data;
-          console.log(destinations.value)
+         const results = response.data.data;
+        const updatedDestination= results.map(item=>{
+          return{
+            ...item,
+            country_image: `http://tourism-app-backend.test/api/destinations/image/${item.country_image}`
+          }
+        })
+        destinations.value = updatedDestination;
+        totalPages.value = response.data.last_page;
+        totalDestinations.value = response.data.total
+        console.log(destinations.value)
         })
         .catch(error => {
           console.error(error);
         });
     };
-
+    const handlePageChange=(value) =>{
+      currentPage.value = value
+    }
     const showModal = ref(false);
     const country = ref(null);
     const description = ref('');
@@ -106,10 +129,13 @@ export default {
     }
 
     onMounted(() => {
-      getDestinations();
+      getDestinations(currentPage.value);
     });
+    watch(currentPage, (newValue, oldValue)=>{
+      getDestinations(newValue);
+    })
 
-    return { destinations, countries, showModal, country, description, body, country_image, submitForm };
+    return { destinations, countries, showModal, country, description, body, country_image, submitForm, currentPage, totalPages, totalDestinations, handlePageChange };
   }
 };
 </script>
