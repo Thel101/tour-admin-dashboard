@@ -7,7 +7,7 @@
             <v-card-text>Are you sure you want to {{ actionMessage }} this?</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="green-darken-1" variant="text" @click="dialog = false">
+                <v-btn color="green-darken-1" variant="text" @click="closeModal">
                     Disagree
                 </v-btn>
                 <v-btn color="green-darken-1" variant="text" @click="invokeMethod">
@@ -22,7 +22,7 @@
 import axios from 'axios';
 export default {
     name: 'Toast',
-    props: ['delete', 'id', 'status', 'slot_id'],
+    props: ['delete', 'id', 'status', 'slot_id','destination_delete', 'destination_id'],
     data() {
         return {
             dialog: true
@@ -45,6 +45,15 @@ export default {
                 })
                 .catch(error => console.log(error))
         },
+        deleteDestination (destination_id){
+            axios.delete(`http://tourism-app-backend.test/api/destination/delete/${destination_id}`)
+            .then(response=>{
+                console.log(response.data)
+                this.$emit('close')
+            })
+            .catch(error=>console.log(error))
+        },
+
         invokeMethod() {
             if (this.delete) {
                 this.deleteContent(this.id)
@@ -52,6 +61,13 @@ export default {
             else if (this.status) {
                 this.slotStatus(this.slot_id);
             }
+            else if (this.destination_delete){
+                this.deleteDestination(this.destination_id)
+            }
+        }
+        ,
+        closeModal(){
+            this.$emit('closeModal')
         }
     },
     computed: {
@@ -62,8 +78,8 @@ export default {
             else if (this.status) {
                 return this.status
             }
-            else {
-                return 'perform action'
+            else if(this.destination_delete) {
+                return this.destination_delete
             }
         }
     }

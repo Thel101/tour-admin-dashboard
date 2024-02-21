@@ -46,26 +46,27 @@
           </v-col>
           <v-col>
             <div class="d-flex justify-space-between">
-              <v-card-title>Title: {{ item.title }} <span class="mt-3 font-weight-bold">Page: {{ item.page_name}} 
-             </span></v-card-title>
+              <v-card-title>Title: {{ item.title }} <span class="mt-3 font-weight-bold">Page: {{ item.page_name }}
+                </span></v-card-title>
 
               <span class="ma-3 font-weight-bold">Created At: {{ formatDate(item.created_at) }}</span>
 
             </div>
-       
-              <div class="ma-3 font-weight-bold">Status: {{ item.status }}</div>
-              <div class="ma-3 font-weight-bold">Content Slot: {{ item.content_slots }}</div>
-       
+
+            <div class="ma-3 font-weight-bold">Status: {{ item.status }}</div>
+            <div class="ma-3 font-weight-bold">Content Slot: {{ item.content_slots }}</div>
+
 
             <v-card-text>Description: {{ item.description }}</v-card-text>
             <div class="d-flex justify-end ma-3">
               <v-btn title="edit" class="bg-primary mx-lg-2" @click="getContent(item.id)"><v-icon
                   icon="mdi-file-edit"></v-icon></v-btn>
-              <v-btn title="delete" class="bg-red mx-lg-2" @click="toggleToast(item.id)"><v-icon icon="mdi-delete-empty"></v-icon></v-btn>
-              <v-btn title="deactivate" v-if="item.status === 'active'" class="bg-grey mx-lg-2" @click="toggleActiveForm(item.id)"><v-icon
-                  icon="mdi-cancel"></v-icon></v-btn>
-              <v-btn title="reactivate" v-if="item.status === 'inactive'" class="bg-blue mx-lg-2" @click="toggleActiveForm(item.id)"><v-icon
-                  icon="mdi-account-reactivate"></v-icon></v-btn>
+              <v-btn title="delete" class="bg-red mx-lg-2" @click="toggleToast(item.id)"><v-icon
+                  icon="mdi-delete-empty"></v-icon></v-btn>
+              <v-btn title="deactivate" v-if="item.status === 'active'" class="bg-grey mx-lg-2"
+                @click="toggleActiveForm(item.id)"><v-icon icon="mdi-cancel"></v-icon></v-btn>
+              <v-btn title="reactivate" v-if="item.status === 'inactive'" class="bg-blue mx-lg-2"
+                @click="toggleActiveForm(item.id)"><v-icon icon="mdi-account-reactivate"></v-icon></v-btn>
             </div>
 
           </v-col>
@@ -80,16 +81,16 @@
   <!-- Conform box-->
 
   <v-dialog v-model="showToast">
-    <Toast :delete="'delete'" :id="id" @close="toggleToast">
+    <Toast :delete="'delete'" :id="id" @close="toggleToast" @closeModal="closeModal">
 
     </Toast>
   </v-dialog>
   <v-dialog v-model="showActiveForm">
-    <Toast :status="'update status for'" :slot_id="slot_id" @changeStatus="toggleActiveForm">
+    <Toast :status="'update status for'" :slot_id="slot_id" @changeStatus="toggleActiveForm" @closeModal="closeModal">
 
     </Toast>
   </v-dialog>
-  
+
   <!-- Conform box-->
   <!-- Content Edit Form-->
   <Modal v-if="showEditForm">
@@ -116,7 +117,7 @@
 
 
             <div class="d-flex justify-end">
-              <v-btn class="ma-3 bg-grey" @click="showEditForm = !showEditForm">Close</v-btn>
+              <v-btn class="ma-3 bg-grey" @click="showEditForm = !showEditForm, clearContacts()">Close</v-btn>
               <v-btn class="ma-3 bg-blue" @click="editContent">Save</v-btn>
 
             </div>
@@ -132,10 +133,10 @@
 <script>
 import axios from 'axios'; // Importing axios without curly braces
 
-import {onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Toast from '../components/Toast.vue';
 export default {
-  components:{
+  components: {
     Toast
   },
   setup() {
@@ -183,12 +184,16 @@ export default {
     }
     const slot_id = ref();
     const showActiveForm = ref(false);
-    const toggleActiveForm = (item_id) =>{
+    const toggleActiveForm = (item_id) => {
       showActiveForm.value = !(showActiveForm.value);
       slot_id.value = item_id;
       getContents(currentPage.value)
     }
 
+    const closeModal = () =>{
+      showToast.value = false;
+      showActiveForm.value = false
+    }
     const showModal = ref(false);
     const content_id = ref();
     const page_name = ref('Home');
@@ -235,13 +240,11 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         })
-        .then(function (response) {
-          title.value='';
-          description.value='';
-          background.value=''
-          getContents();
-          showModal.value = false;
-        })
+        .then(function(response){
+          console.log(response.data)
+          clearContacts()
+        }
+        )
         .catch(function (error) {
           console.log(error)
         })
@@ -273,7 +276,15 @@ export default {
         })
 
     }
-  
+
+    const clearContacts = () => {
+      title.value = '';
+      description.value = '';
+      background.value = ''
+      getContents();
+      showModal.value = false;
+    }
+
     onMounted(() => {
       getContents(currentPage.value);
     })
@@ -286,7 +297,7 @@ export default {
       background,
       title,
       description, submitForm, currentPage, totalPages, handlePageChange, totalItems, formatDate, getContent, showEditForm, oldImage, content_id, editContent,
-      showToast, toggleToast, id, showActiveForm, toggleActiveForm, slot_id
+      showToast, toggleToast, id, showActiveForm, toggleActiveForm, slot_id, clearContacts, closeModal
     };
 
   }

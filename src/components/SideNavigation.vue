@@ -14,6 +14,8 @@
                     to="/destinations">Desinations</router-link></v-list-item>
             <v-list-item prepend-icon="mdi-star"><router-link class="custom-link"
                     to="/requests">Requests</router-link></v-list-item>
+            <v-list-item prepend-icon="mdi-star"><router-link class="custom-link"
+                    to="/plans">Plans</router-link></v-list-item>
         </v-list>
     </v-navigation-drawer>
 
