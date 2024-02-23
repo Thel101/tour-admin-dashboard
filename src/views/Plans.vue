@@ -1,44 +1,62 @@
 <template>
-    <v-form v-model="valid">
-        <v-container>
-            <v-row>
-                <v-col cols="12" md="4">
-                    <v-text-field v-model="name" label="First name" required></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="4">
-                    <v-select v-model="selectedItems" :items="items" chips label="Chips" multiple></v-select>
-                </v-col>
-
-                <v-col cols="12" md="4">
-                    <v-select v-model="selectedActivities" :items="activities" chips label="Chips" multiple></v-select>
-                </v-col>
-            </v-row>
-            <v-btn @click="submitForm">Submit Form</v-btn>
-        </v-container>
-    </v-form>
+    <v-data-table :headers="headers" :items = "plans">
+    <template v-slot:item=" {item}">
+        <tr> <td>{{ item.name }}</td>
+        <td>{{ item.phone_no }}</td>
+        <td>{{ item.email }}</td>
+        <td>{{ item.destination }}</td>
+        <td>{{ item.travel_date }}</td>
+        <td>
+            <router-link :to="{name: 'detailPlan', params:{ id: item.id}}">
+                <v-btn class="bg-primary" size="small">see Details</v-btn>
+            </router-link>
+            
+        </td></tr>
+        
+    </template></v-data-table>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
+import PlanDetail from './PlanDetail.vue';
 export default {
     setup() {
-        const name = ref('');
-        const selectedItems = ref([]);
-        const items = ref(['reading', 'playing', 'jogging'])
-        const selectedActivities = ref([]);
-        const activities = ref(['billiard', 'reading', 'dancing'])
-        const submitForm = () => {
-            axios.post('http://tourism-app-backend.test/api/forms/create', {
-                "name": name.value,
-                "interests": selectedItems.value,
-                "activities": selectedActivities.value
-            })
-            .then(response=>console.log(response))
-            .catch(error=>console.log(error));
-        }
-        return { name, items, selectedItems, activities, selectedActivities, submitForm }
+
+        const headers = [
+            { title: 'Customer Name', value: 'name' },
+            { title: 'Phone No', value: 'phone_no' },
+            { title: 'Email Address', value: 'email' },
+            { title: 'Destination', value: 'destination' },
+            { title: 'Travel Date', value: 'travel_date' },
+            { title: '' },
+        ];
+        const plans = ref([]);
+        const displayPlan = computed(()=>{
+            return plans.value.map(plan=>({
+                name : plan.name,
+                phone: plan.phone_no,
+                email : plan.email,
+                destination : plan.destination,
+                date : plan.travel_date
+
+            }));
+        })
+        const getPlans = () => {
+            axios.get(`http://tourism-app-backend.test/api/plans`)
+                .then(function (response) {
+                    plans.value = response.data
+                    console.log(plans.value)
+                })
+                .catch(error => console.log(error))
+
+        }  
+        onMounted(() => {
+            getPlans(); 
+        })
+
+        return { getPlans, plans, headers, displayPlan }
+
     }
 }
 </script>
