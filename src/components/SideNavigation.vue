@@ -9,7 +9,7 @@
 
         <v-list density="compact" nav>
             <v-list-item prepend-icon="mdi-folder"><router-link class="custom-link"
-                    to="/pages">Pages</router-link></v-list-item>
+                    to="/pages">Home Page Content</router-link></v-list-item>
             <v-list-item prepend-icon="mdi-account-multiple"><router-link class="custom-link"
                     to="/destinations">Desinations</router-link></v-list-item>
             <v-list-item prepend-icon="mdi-star"><router-link class="custom-link"

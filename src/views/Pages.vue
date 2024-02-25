@@ -1,5 +1,5 @@
 <template>
-  <h2 class="text-center mt-5">Contents</h2>
+  <h2 class="text-center mt-5">Home Page Contents</h2>
   <v-btn color="blue-darken-2" @click="showModal = !showModal">
     Add New Content
   </v-btn>
@@ -10,8 +10,7 @@
         <v-card class="bg-white" width="700">
           <v-card-title>Create New Content</v-card-title>
           <v-form class="pa-5">
-            <v-select v-model="page_name" :hint="`${page_name}`" :items="pages" label="Select Page" persistent-hint
-              single-line></v-select>
+            <v-text-field v-model="page_name" label="Enter content title" readonly  ></v-text-field>
 
             <v-select v-model="content_slots" :items="slots" label="Select Content Slot" persistent-hint></v-select>
 
