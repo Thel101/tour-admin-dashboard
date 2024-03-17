@@ -1,7 +1,10 @@
 <template>
   <v-app>
     <v-main>
-      <v-row>
+      <v-row v-if="!(authStore.user)">
+        <Login></Login>
+      </v-row>
+      <v-row v-else>
         <v-col cols="3" style="max-width :20%">
           <SideNavigation></SideNavigation>
         </v-col>
@@ -16,13 +19,18 @@
 
 <script>
 import SideNavigation from './components/SideNavigation.vue';
+import Login from '../src/views/Login.vue';
+import { useAuthStore } from './stores/auth';
+import LoginVue from './views/Login.vue';
 export default {
   name: 'App',
   components:{
-    SideNavigation
+    SideNavigation,
+    Login
   },
-  data: () => ({
-    //
-  }),
+  setup(){
+    const authStore = useAuthStore();
+    return { authStore }
+  }
 }
 </script>
